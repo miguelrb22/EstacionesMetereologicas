@@ -49,7 +49,10 @@ public class HiloServidor extends Thread{
     }
 
     public void escribeSocket(Socket p_sk, String p_Datos) {
+
         try {
+
+
             PrintWriter out = new PrintWriter(p_sk.getOutputStream());
             out.flush();
 
@@ -64,13 +67,13 @@ public class HiloServidor extends Thread{
             out.println("Content-Type: text/html; charset=UTF-8");
             out.println("Server: informacion del servidor");
             out.println("\n");
-
             out.println(cuerpo);
-
             out.flush();
+
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }
+
         return;
     }
 
