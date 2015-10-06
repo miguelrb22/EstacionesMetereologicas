@@ -94,8 +94,8 @@ public class ServidorEstacion {
                 System.out.println("Sirviendo cliente...");
 
 
-                //Thread t = new hiloHTTP(skCliente);
-                //t.start();
+                Thread t = new HiloServidor(skCliente);
+                t.start();
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
