@@ -1,37 +1,38 @@
 import java.io.*;
 import java.lang.Exception;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Timer;
-import java.util.TimerTask;
 
-/**
- * Created by EPS on 06/10/2015.
- */
-public class HiloServidor extends Thread{
 
-    private Socket skCliente;
-    //private gui g = new gui();
-    private String metodoHTTP;
-    private String versionHTTP;
-    private String urlHTTP;
-    private static final String inicioHTTP = "<html>" + "<head><title>Servidor PRACTICA SD: Vending</title>";
-    private static final String finHTTP = "</body>" + "</html>";
-    private String cuerpo = new String();
+public class HiloServidor extends Thread {
 
-    public HiloServidor(Socket p_cliente) {
+    private Socket skCliente; //cliente
+    private String metodoHTTP; //metodo [GET,POST,HEAD,PUT,DELETE]
+    private String versionHTTP; //version del http [HTTP 1.1]
+    private String urlHTTP; //url peticion
+    public ServidorEstacion servidor; // servidor principal
+
+
+    /**
+     * Construsctor del hilo
+     * @param p_cliente
+     * @param servidor
+     */
+    public HiloServidor(Socket p_cliente, ServidorEstacion servidor) {
         this.skCliente = p_cliente;
+        this.servidor = servidor;
     }
 
 
     public String leeSocket(Socket p_sk, String p_Datos) {
+
         p_Datos = new String();
         try {
+
             BufferedReader in = new BufferedReader(new InputStreamReader(p_sk.getInputStream()));
             p_Datos += in.readLine();
+
+
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }
@@ -48,27 +49,35 @@ public class HiloServidor extends Thread{
         return res;
     }
 
-    public void escribeSocket(Socket p_sk, String p_Datos) {
+    public void escribeSocket(Socket p_sk, String p_Datos, boolean cabeceras) {
 
         try {
 
+            String cuerpo = new String();
 
             PrintWriter out = new PrintWriter(p_sk.getOutputStream());
             out.flush();
 
-            cuerpo+= inicioHTTP;
-            cuerpo+="<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"></head><body>";
-            cuerpo+="<p><span style=\"color:blue\">" + p_Datos + "</span></p>";
-            cuerpo+=finHTTP;
+            if (cabeceras == true) {
+
+                cuerpo += "<html>" + "<head><title> Servidor </title>";
+                cuerpo += "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"></head><body>";
+                cuerpo += "<p><span style=\"color:blue\">" + p_Datos + "</span></p>";
+                cuerpo += "</body>" + "</html>";
+
+            } else {
+                cuerpo = p_Datos;
+            }
 
             out.println("HTTP/1.1 200 OK");
             out.println("Connection: close");
-            out.println("Content-Lenght: "+ cuerpo.getBytes().length);
+            out.println("Content-Lenght: " + cuerpo.getBytes().length);
             out.println("Content-Type: text/html; charset=UTF-8");
             out.println("Server: informacion del servidor");
             out.println("\n");
             out.println(cuerpo);
             out.flush();
+            out.close();
 
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
@@ -79,69 +88,113 @@ public class HiloServidor extends Thread{
 
     public void escribeSocketAcontrolar(Socket p_sk, String p_Datos) {
         try {
-            PrintWriter out = new PrintWriter(p_sk.getOutputStream());
 
+            PrintWriter out = new PrintWriter(p_sk.getOutputStream());
             out.println(p_Datos);
             out.flush();
+
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }
         return;
     }
 
+
     public void run() {
 
         String Cadena = new String();
-        String nt = "No te entiendo";
 
         try {
-            //ServerSocket skServidor = new ServerSocket(Integer.parseInt(sr.puerto));
 
-            System.out.println("Iniciado nuevo hilo...");
-
-            Cadena = leeSocket(this.skCliente, Cadena);
-
-            String aux = this.procesarLineaHTTP(Cadena);
-
-            String orden = this.urlHTTP;
+            Cadena = leeSocket(this.skCliente, Cadena); //leemos la cadena recibida por el cliente
+            procesarLineaHTTP(Cadena); // procesamos la cadena para separarla
+            int ordensize = urlHTTP.length(); //longitud de la orden pedida
 
 
-            if(this.metodoHTTP.equals("GET")){
-
-                System.out.println("Peticion permitida");
-                this.escribeSocket(this.skCliente,"Error");
-
-            }else{
-
-                System.out.println("Peticion no permitida");
-            }
+            if (this.metodoHTTP.equals("GET")) {
 
 
-            /**
-            if ((orden.equals("/controladorSD/") || orden.equals("/controladorSD")) && orden.length() <= 15) {
-                escribeSocket(skCliente, "");
-            } else if (orden.length() > 15 && (this.urlHTTP.substring(0, 15)).equals("/controladorSD/")) {
+                if (ordensize >= 14) {
+                    if (urlHTTP.substring(0, 14).equals("/controladorSD")) { toController();  } // al controlador
+                    else { getFile(2);}
+                }
 
-                //Canal de comunicacion con el controlador
-                Socket canalControlador = new Socket("192.168.100.102", 10900);
+                else if (ordensize >= 15) {
+                    if (urlHTTP.substring(0, 15).equals("/controladorSD/")) { toController(); } // al controlador
+                    else { getFile(2);}
+                }
 
-                String acontrolar = this.urlHTTP.substring(15);
-                System.out.println(acontrolar);
-                this.escribeSocketAcontrolar(canalControlador, acontrolar);
+                else {
 
-                escribeSocket(skCliente, "Accediendo al controlador");
+                    if (urlHTTP.equals("/")) { getFile(1); } //index
+                    else { getFile(2); }
+                }
 
             } else {
-                escribeSocket(skCliente, "ERROR 404 PAGINA NO ENCONTRADA");
-            } */
 
-            //else escribeSocket(skCliente, "FAIL");
-            System.out.println("Hilo finalizado");
+                this.escribeSocket(this.skCliente, "Error", false);
+            }
+
             this.skCliente.close();
 
+        } catch (FileNotFoundException e) {
+
+
         } catch (Exception e) {
+
             System.out.println("Error al iniciar: " + e.toString());
+        }
+
+        servidor.conexiones--; // Hilo terminado
+    }
+
+
+    public void getFile(int action) {
+
+        String result = new String();
+        String cadena = new String();
+        FileReader fr;
+
+        try {
+
+            if (action == 1) fr = new FileReader("C:/html/index.html.txt");
+            else if (action == 2) fr = new FileReader("C:/html/" + this.urlHTTP + ".txt");
+            else fr = new FileReader("C:/html/404.html.txt");
+
+
+            BufferedReader br = new BufferedReader(fr);
+            while ((cadena = br.readLine()) != null) {
+                result += cadena;
+            }
+            escribeSocket(skCliente, result, false);
+            skCliente.close();
+
+        } catch (FileNotFoundException e) {
+            getFile(3);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+
+    public void toController() {
+
+
+        String result = new String();
+        try {
+
+            Socket canalControlador = new Socket("192.168.1.104", 10900); //inicio comunicacion con el controlador
+
+            escribeSocketAcontrolar(canalControlador, this.urlHTTP);// le escribo la peticion
+
+            result = leeSocket(canalControlador, result); //leo la respuesta
+
+            escribeSocket(skCliente, result, true); // la escribo en el cliente
+
+            canalControlador.close(); // cierro comunicacion con el controlador
+
+        } catch (IOException e) {
+
+        }
+    }
 }
