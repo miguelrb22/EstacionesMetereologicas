@@ -1,11 +1,5 @@
-import java.io.File;
 import java.net.*;
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
-import javax.swing.text.Document;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+
 
 public class Controller {
 
@@ -22,7 +16,7 @@ public class Controller {
 
             puerto = 10900;
             ServerSocket skServidor = new ServerSocket(puerto);
-            //System.out.println("Controlador corriendo en el puerto " + puerto);
+            System.out.println("Controlador corriendo en el puerto " + puerto);
 
 
             for (; ; ) {

@@ -3,16 +3,15 @@ import java.io.*;
 import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 public class HiloController extends Thread {
 
     private Socket skCliente;
     private String metodo = "";
-    private String variables[];
-    private String estacion[];
-    private String msg[];
-
+    private String Cadena = new String();
+    private String metodos_variables[];
+    private HashMap<String, String> parametros = new HashMap<String, String>();
     private static final String inicioHTTP = "<html>" + "<head><title> Controlador Vending</title>";
     private static final String finHTTP = "</body>" + "</html>";
     private String cuerpo = new String();
@@ -73,26 +72,19 @@ public class HiloController extends Thread {
 
     public void run() {
 
-        String Cadena = new String();
-
         try {
 
-
-
             Cadena = leeSocket(this.skCliente, Cadena);
+
             Cadena = Cadena.substring(15);
 
+            boolean checkmetod = extMetodo();
+            boolean checkvariable = false;
 
-            String metodos_variables[] = Cadena.split("\\?",2);
-
-            this.metodo = metodos_variables[0];
-            this.variables = metodos_variables[1].split("&");
-            this.estacion = variables[0].split("=");
-            this.msg = variables[1].split("=");
+            if(checkmetod == true) { checkvariable = extVariables(); }
 
 
-
-            Metodos met = Metodos.valueOf(metodo.toUpperCase());
+            Metodos met = Metodos.valueOf(parametros.get("metodo").toUpperCase());
 
             escribeSocket(skCliente,"hola");
 
@@ -100,11 +92,8 @@ public class HiloController extends Thread {
 
                 case TEMPERATURA: {
 
+                    if(checkUrl(0)==true){ System.out.println("todo va bien");
 
-
-                    if(checkUrl(0)==true){
-
-                        System.out.println("todo va bien");
                     }
 
 
@@ -127,14 +116,89 @@ public class HiloController extends Thread {
         HUMEDAD
     }
 
+    public boolean extMetodo(){
+
+        try {
+
+            if (Cadena.contains("?")) {
+
+                metodos_variables = Cadena.split("\\?", 2);
+                parametros.put("metodo",metodos_variables[0]);
+
+            }else{
+
+                return false;
+
+            }
+
+            return true;
+
+        }catch (Exception e){
+
+            return false;
+
+        }
+    }
+
+
+    public boolean extVariables() {
+
+        String variables[];
+        String aux[];
+
+        System.out.println(this.metodos_variables[1]);
+
+        try {
+
+            if (metodos_variables[1].contains("&")) {
+
+                variables = metodos_variables[1].split("&");
+
+                if (variables.length <= 2) {
+
+                    for (int i = 0; i < variables.length; i++) {
+
+                        if (variables[0].contains("=")) {
+                            aux = variables[0].split("=");
+
+                            parametros.put("parametro" + i, aux[1]);
+
+                        } else {
+                            return false;
+                        }
+                    }
+
+                } else {
+                    return false;
+                }
+
+            } else {
+
+                if (metodos_variables[1].contains("=")) {
+                    aux = metodos_variables[1].split("=");
+
+                    parametros.put("parametro0", aux[1]);
+
+                } else {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+
+
+
     public boolean checkUrl(int metod){
 
         boolean accept = false;
 
-
         if(metod==0){
 
-            if(estacion[0].equals("estacion") && isNumeric(estacion[1])){accept=true;}
+            //if(estacion[0].equals("estacion") && isNumeric(estacion[1])){accept=true;}
 
         }
 

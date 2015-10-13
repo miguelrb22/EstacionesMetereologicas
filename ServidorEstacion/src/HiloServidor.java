@@ -111,7 +111,7 @@ public class HiloServidor extends Thread {
             int ordensize = urlHTTP.length(); //longitud de la orden pedida
 
 
-            if (this.metodoHTTP.equals("GET")) {
+            if (this.metodoHTTP.equals("GET") && !urlHTTP.equals("/favicon.ico")) {
 
 
                 if (ordensize >= 14) {
@@ -181,9 +181,11 @@ public class HiloServidor extends Thread {
 
 
         String result = new String();
+
+        System.out.println("Accediendo al controlador...");
         try {
 
-            Socket canalControlador = new Socket("192.168.1.104", 10900); //inicio comunicacion con el controlador
+            Socket canalControlador = new Socket("172.20.43.138", 10900); //inicio comunicacion con el controlador
 
             escribeSocketAcontrolar(canalControlador, this.urlHTTP);// le escribo la peticion
 
