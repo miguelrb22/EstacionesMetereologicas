@@ -24,7 +24,6 @@ public class Controller {
 				* Se espera un cliente que quiera conectarse
 				*/
                 Socket skCliente = skServidor.accept(); // Crea objeto
-                System.out.println("Iniciando controlador...");
 
                 Thread t = new HiloController(skCliente);
                 t.start();

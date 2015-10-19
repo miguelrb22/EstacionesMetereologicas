@@ -14,8 +14,6 @@ public class HiloController extends Thread {
     private String Cadena = new String();
     private String metodos_variables[];
     private HashMap<String, String> parametros = new HashMap<String, String>();
-    private static final String inicioHTTP = "<html>" + "<head><title> Controlador Vending</title>";
-    private static final String finHTTP = "</body>" + "</html>";
     private String cuerpo = new String();
 
 
@@ -55,11 +53,7 @@ public class HiloController extends Thread {
 
             PrintWriter out = new PrintWriter(p_sk.getOutputStream(),true);
 
-            cuerpo+= inicioHTTP;
-            cuerpo+="<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"></head><body>";
-            cuerpo+="<p><span style=\"color:blue\">" + p_Datos + "</span></p>";
-            cuerpo+=finHTTP;
-            out.print(cuerpo);
+            out.print(p_Datos);
             out.flush();
 
 
@@ -102,45 +96,85 @@ public class HiloController extends Thread {
 
                     case TEMPERATURA: {
 
-                            if(chUrlSensores()==2){ System.out.println("Demasiados argumentos"); }
-                            else if  (chUrlSensores()==1){ System.out.println("Se espera una variable de tipo estacion"); }
-                            else if  (chUrlSensores()==3){ System.out.println("La variable estacion debe ser un entero"); }
-                            else{ System.out.println("obteniendo temperatura...");}
+                            if(chUrlSensores()==2){ error400(1); }
+                            else if  (chUrlSensores()==1){ error400(2); }
+                            else if  (chUrlSensores()==3){ error400(3); }
+                            else{
+
+                                System.out.println(parametros.get("parametro0"));
+                                escribeSocket(skCliente,"Obteniendo temperatura");
+
+                            }
+                        this.skCliente.close();
+
 
                     }
                     break;
 
                     case HUMEDAD: {
 
-                        if(chUrlSensores()==2){ System.out.println("Demasiados argumentos"); }
-                        else if  (chUrlSensores()==1){ System.out.println("Se espera una variable de tipo estacion"); }
-                        else if  (chUrlSensores()==3){ System.out.println("La variable estacion debe ser un entero"); }
-                        else{ System.out.println("obteniendo humedad...");}
+                        if(chUrlSensores()==2){ error400(1); }
+                        else if  (chUrlSensores()==1){ error400(2); }
+                        else if  (chUrlSensores()==3){ error400(3); }
+                        else{
+                            System.out.println(parametros.get("parametro0"));
+                            escribeSocket(skCliente, "Obteniendo Humedad");}
+                        this.skCliente.close();
+
                     }
                     break;
 
                     case LUMINOSIDAD: {
 
-                        if(chUrlSensores()==2){ System.out.println("Demasiados argumentos"); }
-                        else if  (chUrlSensores()==1){ System.out.println("Se espera una variable de tipo estacion"); }
-                        else if  (chUrlSensores()==3){ System.out.println("La variable estacion debe ser un entero"); }
-                        else{ System.out.println("obteniendo luminosidad...");}
+                        if(chUrlSensores()==2){ error400(1); }
+                        else if  (chUrlSensores()==1){ error400(2); }
+                        else if  (chUrlSensores()==3){ error400(3); }
+                        else{
+                            System.out.println(parametros.get("parametro0"));
+
+                            escribeSocket(skCliente, "Obteniendo Luminosidad");}
+                        this.skCliente.close();
+
+                    }
+
+                    break;
+
+                    case PANTALLA: {
+
+                        if(chUrlActuador()==2){ error400(1); }
+                        else if  (chUrlActuador()==1){ error400(2); }
+                        else if  (chUrlActuador()==3){ error400(3); }
+                        else if  (chUrlActuador()==4){ error400(4); }
+                        else{
+
+                            System.out.println(parametros.get("parametro0"));
+                            System.out.println(parametros.get("parametro1"));
+
+                            escribeSocket(skCliente,"Estableciendo mensaje pantalla");
+
+                        }
+                        this.skCliente.close();
+
                     }
                     break;
+
                     default: {
 
-                        System.out.println("405 Method not allowed");
+                        escribeSocket(skCliente, "Error: Metodo invalido");
+                        this.skCliente.close();
+
                     }
+                    break;
                 }
 
             }else{
 
-                System.out.println("Url incorrecta");
-                escribeSocket(skCliente, "Url incorrecta");
+
+                error400(5);
+                this.skCliente.close();
+
 
             }
-
-            this.skCliente.close();
 
 
         } catch (Exception e) {
@@ -212,8 +246,8 @@ public class HiloController extends Thread {
 
                     for (int i = 0; i < variables.length; i++) {
 
-                        if (variables[0].contains("=")) {
-                            aux = variables[0].split("=");
+                        if (variables[i].contains("=")) {
+                            aux = variables[i].split("=");
 
                             parametros.put("parametro" + i, aux[1]);
                             parametros.put("nombre" + i, aux[0]);
@@ -233,7 +267,9 @@ public class HiloController extends Thread {
                     aux = metodos_variables[1].split("=");
 
                     parametros.put("parametro0", aux[1]);
+                    parametros.put("parametro1", "");
                     parametros.put("nombre0", aux[0]);
+                    parametros.put("nombre1", "");
 
                 } else {
                     return false;
@@ -292,10 +328,24 @@ public class HiloController extends Thread {
     }
 
 
+    public void error400(int error){
+
+
+        if(error == 1)         escribeSocket(skCliente, "Error: Demasiados argumentos");
+        else if(error == 2)    escribeSocket(skCliente, "Error: Se espera una variable de tipo estacion");
+        else if(error == 3)    escribeSocket(skCliente, "Error: La variable estacion debe ser un entero");
+        else if(error == 4)    escribeSocket(skCliente, "Error: Se espera una variable de tipo msg");
+        else                   escribeSocket(skCliente, "Error: Estructura de la url incorrrecta");
+
+
+    }
+
+
     //0 correcto
     //1 error variable estacion
     //2 demasiados argumentos
     //3 variable estacion no es numerica
+
 
     public int chUrlSensores(){
 
@@ -310,6 +360,34 @@ public class HiloController extends Thread {
                 return 3;
 
             }else  return 0;
+
+        }else{
+
+            return 1;
+        }
+    }
+
+    //0 correcto
+    //1 error variable estacion
+    //2 demasiados argumentos
+    //3 variable estacion no es numerica
+    //se espera una variable msg
+
+    public int chUrlActuador(){
+
+
+        if(parametros.get("nombre0").equals("estacion")){
+
+            if(isNumeric(parametros.get("parametro0"))){
+
+                if(!parametros.get("nombre1").equals("msg")){
+
+                    return 4;
+
+                } else return 0;
+            }else{
+                return 3;
+            }
 
         }else{
 
