@@ -74,6 +74,9 @@ public class HiloServidor extends Thread {
             //state: 1  = 200 ok
             // 2 = 404
             //3 405 method not allowed
+            //4 400 Bas request
+
+            if(p_Datos.substring(0,5).equals("Error") && state != 3){ state =4; }
 
             if(state == 1) {
 
@@ -85,8 +88,12 @@ public class HiloServidor extends Thread {
             }else if (state ==3){
 
                 out.println("HTTP/1.1 405 Method Not Allowed");
-
             }
+
+            else if (state ==4){
+                out.println("HTTP/1.1 400 Bad Request");
+            }
+
             out.println("Connection: close");
             out.println("Content-Lenght: " + cuerpo.getBytes().length);
             out.println("Content-Type: text/html; charset=UTF-8");
@@ -127,7 +134,6 @@ public class HiloServidor extends Thread {
             procesarLineaHTTP(Cadena); // procesamos la cadena para separarla
             int ordensize = urlHTTP.length(); //longitud de la orden pedida
 
-            System.out.println(this.metodoHTTP);
 
             if (this.metodoHTTP.equals("GET") && !urlHTTP.equals("/favicon.ico")) {
 
@@ -198,7 +204,7 @@ public class HiloServidor extends Thread {
         System.out.println("Accediendo al controlador...");
         try {
 
-            Socket canalControlador = new Socket("192.168.1.19", 10900); //inicio comunicacion con el controlador
+            Socket canalControlador = new Socket("192.168.1.26", 10900); //inicio comunicacion con el controlador
 
             escribeSocketAcontrolar(canalControlador, this.urlHTTP);// le escribo la peticion
 
