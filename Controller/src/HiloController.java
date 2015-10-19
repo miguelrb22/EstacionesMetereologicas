@@ -102,7 +102,6 @@ public class HiloController extends Thread {
 
                     case TEMPERATURA: {
 
-
                             if(chUrlSensores()==2){ System.out.println("Demasiados argumentos"); }
                             else if  (chUrlSensores()==1){ System.out.println("Se espera una variable de tipo estacion"); }
                             else if  (chUrlSensores()==3){ System.out.println("La variable estacion debe ser un entero"); }
@@ -113,19 +112,24 @@ public class HiloController extends Thread {
 
                     case HUMEDAD: {
 
-                            System.out.println("Obteniendo humedad...");
-
+                        if(chUrlSensores()==2){ System.out.println("Demasiados argumentos"); }
+                        else if  (chUrlSensores()==1){ System.out.println("Se espera una variable de tipo estacion"); }
+                        else if  (chUrlSensores()==3){ System.out.println("La variable estacion debe ser un entero"); }
+                        else{ System.out.println("obteniendo humedad...");}
                     }
                     break;
 
                     case LUMINOSIDAD: {
 
-                            System.out.println("Obteniendo luminosidad...");
-
+                        if(chUrlSensores()==2){ System.out.println("Demasiados argumentos"); }
+                        else if  (chUrlSensores()==1){ System.out.println("Se espera una variable de tipo estacion"); }
+                        else if  (chUrlSensores()==3){ System.out.println("La variable estacion debe ser un entero"); }
+                        else{ System.out.println("obteniendo luminosidad...");}
                     }
                     break;
                     default: {
-                        System.out.println("Metodo no encontrado");
+
+                        System.out.println("405 Method not allowed");
                     }
                 }
 
