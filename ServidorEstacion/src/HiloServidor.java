@@ -1,6 +1,7 @@
 import java.io.*;
 import java.lang.Exception;
 import java.net.Socket;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 
@@ -49,7 +50,7 @@ public class HiloServidor extends Thread {
         return res;
     }
 
-    public void escribeSocket(Socket p_sk, String p_Datos, boolean cabeceras) {
+    public void escribeSocket(Socket p_sk, String p_Datos, boolean cabeceras, int state) {
 
         try {
 
@@ -69,7 +70,23 @@ public class HiloServidor extends Thread {
                 cuerpo = p_Datos;
             }
 
-            out.println("HTTP/1.1 200 OK");
+
+            //state: 1  = 200 ok
+            // 2 = 404
+            //3 405 method not allowed
+
+            if(state == 1) {
+
+                out.println("HTTP/1.1 200 OK");
+            }else if(state == 2){
+
+                out.println("HTTP/1.1 404 Not Found");
+
+            }else if (state ==3){
+
+                out.println("HTTP/1.1 405 Method Not Allowed");
+
+            }
             out.println("Connection: close");
             out.println("Content-Lenght: " + cuerpo.getBytes().length);
             out.println("Content-Type: text/html; charset=UTF-8");
@@ -110,46 +127,42 @@ public class HiloServidor extends Thread {
             procesarLineaHTTP(Cadena); // procesamos la cadena para separarla
             int ordensize = urlHTTP.length(); //longitud de la orden pedida
 
+            System.out.println(this.metodoHTTP);
 
             if (this.metodoHTTP.equals("GET") && !urlHTTP.equals("/favicon.ico")) {
 
 
                 if (ordensize >= 14) {
                     if (urlHTTP.substring(0, 14).equals("/controladorSD")) { toController();  } // al controlador
-                    else { getFile(2);}
+                    else { getFile(2,1);}
                 }
 
                 else if (ordensize >= 15) {
                     if (urlHTTP.substring(0, 15).equals("/controladorSD/")) { toController(); } // al controlador
-                    else { getFile(2);}
+                    else { getFile(2,1);}
                 }
 
                 else {
 
-                    if (urlHTTP.equals("/")) { getFile(1); } //index
-                    else { getFile(2); }
+                    if (urlHTTP.equals("/")) { getFile(1,1); } //index
+                    else { getFile(2,1); }
                 }
 
             } else {
 
-                this.escribeSocket(this.skCliente, "Error", false);
+                this.escribeSocket(this.skCliente, "Error: 405 Method Not Allowed", false,3);
             }
 
             this.skCliente.close();
 
-        } catch (FileNotFoundException e) {
-
-
-        } catch (Exception e) {
-
-            System.out.println("Error al iniciar: " + e.toString());
-        }
+        }catch (NoSuchElementException e){ }
+         catch (Exception e) { e.printStackTrace(); }
 
         servidor.conexiones--; // Hilo terminado
     }
 
 
-    public void getFile(int action) {
+    public void getFile(int action, int state) {
 
         String result = new String();
         String cadena = new String();
@@ -166,11 +179,11 @@ public class HiloServidor extends Thread {
             while ((cadena = br.readLine()) != null) {
                 result += cadena;
             }
-            escribeSocket(skCliente, result, false);
+            escribeSocket(skCliente, result, false,state);
             skCliente.close();
 
         } catch (FileNotFoundException e) {
-            getFile(3);
+            getFile(3,2);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -185,13 +198,13 @@ public class HiloServidor extends Thread {
         System.out.println("Accediendo al controlador...");
         try {
 
-            Socket canalControlador = new Socket("172.20.43.138", 10900); //inicio comunicacion con el controlador
+            Socket canalControlador = new Socket("192.168.1.19", 10900); //inicio comunicacion con el controlador
 
             escribeSocketAcontrolar(canalControlador, this.urlHTTP);// le escribo la peticion
 
             result = leeSocket(canalControlador, result); //leo la respuesta
 
-            escribeSocket(skCliente, result, true); // la escribo en el cliente
+            escribeSocket(skCliente, result, true,1); // la escribo en el cliente
 
             canalControlador.close(); // cierro comunicacion con el controlador
 

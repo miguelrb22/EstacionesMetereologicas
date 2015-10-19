@@ -44,7 +44,7 @@ public class ServidorEstacion {
         try {
 
             ServerSocket skServidor = new ServerSocket(puerto);
-            System.out.println("Servidor miniHTTP corriendo en el puerto ");
+            System.out.println("Servidor miniHTTP corriendo en el puerto "+ server.serverport);
 
 
             for (; ; ) {
