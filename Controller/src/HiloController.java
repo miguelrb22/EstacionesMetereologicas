@@ -1,3 +1,5 @@
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
 import javax.annotation.processing.SupportedSourceVersion;
 import java.io.*;
 import java.lang.Exception;
@@ -74,49 +76,94 @@ public class HiloController extends Thread {
 
         try {
 
+            //leo la cadena
             Cadena = leeSocket(this.skCliente, Cadena);
 
+            //le quito la cabecera de controladorSD
             Cadena = Cadena.substring(15);
 
+            //Extraer el metodo de la url
             boolean checkmetod = extMetodo();
+
+            //iniciacilzo a false el estado de las variables
             boolean checkvariable = false;
 
+            //si hay un metodo, extraigo las variables
             if(checkmetod == true) { checkvariable = extVariables(); }
 
+            //asigno el metodo de entre los enum
+            Metodos met = setMetodo();
 
-            Metodos met = Metodos.valueOf(parametros.get("metodo").toUpperCase());
 
-            escribeSocket(skCliente,"hola");
+            //si hay metodo y variables, comienzo las pruebas...
+            if(checkmetod && checkvariable) {
 
-            switch (met){
+                switch (met) {
 
-                case TEMPERATURA: {
+                    case TEMPERATURA: {
 
-                    if(checkUrl(0)==true){ System.out.println("todo va bien");
+
+                            if(chUrlSensores()==2){ System.out.println("Demasiados argumentos"); }
+                            else if  (chUrlSensores()==1){ System.out.println("Se espera una variable de tipo estacion"); }
+                            else if  (chUrlSensores()==3){ System.out.println("La variable estacion debe ser un entero"); }
+                            else{ System.out.println("obteniendo temperatura...");}
 
                     }
+                    break;
 
+                    case HUMEDAD: {
 
+                            System.out.println("Obteniendo humedad...");
+
+                    }
+                    break;
+
+                    case LUMINOSIDAD: {
+
+                            System.out.println("Obteniendo luminosidad...");
+
+                    }
+                    break;
+                    default: {
+                        System.out.println("Metodo no encontrado");
+                    }
                 }
-                break;
-                default:{ System.out.println("Metodo no encontrado");}
+
+            }else{
+
+                System.out.println("Url incorrecta");
+                escribeSocket(skCliente, "Url incorrecta");
+
             }
+
             this.skCliente.close();
 
 
-
         } catch (Exception e) {
-            System.out.println("Error al iniciar: " + e.toString());
+            System.out.println(e.getStackTrace());
         }
     }
+
+    /**
+     * Los diferentes metodos que se pueden usar en el controlador
+     */
 
     public enum Metodos{
 
         TEMPERATURA,
-        HUMEDAD
+        HUMEDAD,
+        LUMINOSIDAD,
+        PANTALLA,
+        NINGUNO
     }
 
+    /**
+     * Extrae el metodo de la url
+     * @return
+     */
+
     public boolean extMetodo(){
+
 
         try {
 
@@ -141,12 +188,15 @@ public class HiloController extends Thread {
     }
 
 
+    /**
+     * Extrae las variables de la url
+     * @return
+     */
+
     public boolean extVariables() {
 
         String variables[];
         String aux[];
-
-        System.out.println(this.metodos_variables[1]);
 
         try {
 
@@ -162,6 +212,7 @@ public class HiloController extends Thread {
                             aux = variables[0].split("=");
 
                             parametros.put("parametro" + i, aux[1]);
+                            parametros.put("nombre" + i, aux[0]);
 
                         } else {
                             return false;
@@ -178,6 +229,7 @@ public class HiloController extends Thread {
                     aux = metodos_variables[1].split("=");
 
                     parametros.put("parametro0", aux[1]);
+                    parametros.put("nombre0", aux[0]);
 
                 } else {
                     return false;
@@ -191,19 +243,11 @@ public class HiloController extends Thread {
 
 
 
-
-    public boolean checkUrl(int metod){
-
-        boolean accept = false;
-
-        if(metod==0){
-
-            //if(estacion[0].equals("estacion") && isNumeric(estacion[1])){accept=true;}
-
-        }
-
-        return accept;
-    }
+    /**
+     * Comprueba si un string es numerico
+     * @param str
+     * @return
+     */
 
     public static boolean isNumeric(String str)
     {
@@ -216,5 +260,56 @@ public class HiloController extends Thread {
             return false;
         }
         return true;
+    }
+
+
+
+
+
+    /**
+     * Establece el metodo a tratar a partir de la url
+     * @return
+     */
+
+    public Metodos setMetodo(){
+
+        try{
+
+            Metodos met = Metodos.valueOf(parametros.get("metodo").toUpperCase());
+            return met;
+
+        }catch (Exception e){
+
+            return Metodos.NINGUNO;
+
+
+        }
+
+    }
+
+
+    //0 correcto
+    //1 error variable estacion
+    //2 demasiados argumentos
+    //3 variable estacion no es numerica
+
+    public int chUrlSensores(){
+
+
+
+        if(parametros.get("nombre0").equals("estacion")){
+
+            if(parametros.get("parametro1")!=null){
+                return 2;
+            }else if(!isNumeric(parametros.get("parametro0"))){
+
+                return 3;
+
+            }else  return 0;
+
+        }else{
+
+            return 1;
+        }
     }
 }
