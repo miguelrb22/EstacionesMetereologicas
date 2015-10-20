@@ -30,6 +30,8 @@ public class HiloServidor extends Thread {
     public HiloServidor(Socket p_cliente, ServidorEstacion servidor, String ipcontroller, int puertocontroller) {
         this.skCliente = p_cliente;
         this.servidor = servidor;
+        this.ipcontrolador = ipcontroller;
+        this.puertocontrolador = puertocontroller;
     }
 
 
@@ -210,6 +212,7 @@ public class HiloServidor extends Thread {
         String result = new String();
 
         System.out.println("Accediendo al controlador...");
+
         try {
 
             Socket canalControlador = new Socket(this.ipcontrolador, this.puertocontrolador); //inicio comunicacion con el controlador
