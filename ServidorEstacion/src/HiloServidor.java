@@ -8,10 +8,18 @@ import java.util.StringTokenizer;
 public class HiloServidor extends Thread {
 
     private Socket skCliente; //cliente
+
     private String metodoHTTP; //metodo [GET,POST,HEAD,PUT,DELETE]
+
     private String versionHTTP; //version del http [HTTP 1.1]
+
     private String urlHTTP; //url peticion
+
     public ServidorEstacion servidor; // servidor principal
+
+    public String ipcontrolador = "";
+
+    public int puertocontrolador = 1900;
 
 
     /**
@@ -19,7 +27,7 @@ public class HiloServidor extends Thread {
      * @param p_cliente
      * @param servidor
      */
-    public HiloServidor(Socket p_cliente, ServidorEstacion servidor) {
+    public HiloServidor(Socket p_cliente, ServidorEstacion servidor, String ipcontroller, int puertocontroller) {
         this.skCliente = p_cliente;
         this.servidor = servidor;
     }
@@ -204,7 +212,7 @@ public class HiloServidor extends Thread {
         System.out.println("Accediendo al controlador...");
         try {
 
-            Socket canalControlador = new Socket("192.168.1.26", 10900); //inicio comunicacion con el controlador
+            Socket canalControlador = new Socket(this.ipcontrolador, this.puertocontrolador); //inicio comunicacion con el controlador
 
             escribeSocketAcontrolar(canalControlador, this.urlHTTP);// le escribo la peticion
 
@@ -215,6 +223,8 @@ public class HiloServidor extends Thread {
             canalControlador.close(); // cierro comunicacion con el controlador
 
         } catch (IOException e) {
+
+            System.out.println("No se ha podido conectar con el controlador");
 
         }
     }
