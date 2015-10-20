@@ -19,13 +19,15 @@ public class Controller {
 		* Descriptores de socket servidor y de socket con el cliente
 		*/
 
-        Controller c = new Controller();
 
-        c.puerto = Integer.parseInt(args[0]);
-        c.iprmi = args[1];
-        c.puertormi = Integer.parseInt(args[2]);
 
         if (args.length == 3) {
+
+            Controller c = new Controller();
+
+            c.puerto = Integer.parseInt(args[0]);
+            c.iprmi = args[1];
+            c.puertormi = Integer.parseInt(args[2]);
 
             try {
 

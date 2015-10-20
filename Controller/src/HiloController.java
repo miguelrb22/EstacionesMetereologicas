@@ -350,10 +350,9 @@ public class HiloController extends Thread {
     public int chUrlSensores(){
 
 
-
         if(parametros.get("nombre0").equals("estacion")){
 
-            if(parametros.get("parametro1")!=null){
+            if(!parametros.get("parametro1").equals("")){
                 return 2;
             }else if(!isNumeric(parametros.get("parametro0"))){
 
