@@ -5,7 +5,10 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
 {
 
 
-    protected ObjetoRemoto() throws RemoteException {}
+    protected ObjetoRemoto() throws RemoteException {
+
+        super();
+    }
 
     @Override
     public int getTempertura() throws RemoteException {
