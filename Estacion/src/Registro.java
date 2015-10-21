@@ -18,6 +18,11 @@ public class Registro {
             System.setSecurityManager(new RMISecurityManager());
             ObjetoRemoto objetoRemoto = new ObjetoRemoto();
             int estacionN = objetoRemoto.estacionN;
+
+
+            String[] names = Naming.list("//" + "localhost:1099" + "/");
+            for (int i = 0; i < names.length; i++)  System.out.println(names[i]);
+
             URLRegistro = "/ObjetoRemoto"+ estacionN;
             System.out.println(URLRegistro);
             Naming.rebind (URLRegistro, objetoRemoto);
