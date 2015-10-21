@@ -118,7 +118,7 @@ public class HiloController extends Thread {
                                 System.out.println(servidor_rmi + parametros.get("parametro0"));
 
                                 objetoRemoto = (InterfazRemoto) Naming.lookup(servidor_rmi + parametros.get("parametro0"));
-                                System.out.println(objetoRemoto.getTempertura(2));
+                                System.out.println(objetoRemoto.getTempertura());
 
                             }
                         this.skCliente.close();

@@ -5,9 +5,8 @@ import java.rmi.Remote;
  */
 public interface InterfazRemoto extends Remote {
 
-    public static int estacionN = 0;
-    public int getTempertura (int maquina)throws java.rmi.RemoteException;
-    public int getHumedad (int maquina)throws java.rmi.RemoteException;
-    public int getLuminosidad (int maquina)throws java.rmi.RemoteException;
-    public boolean setPantalla (int maquina, String msg)throws java.rmi.RemoteException;
+    public int getTempertura ()throws java.rmi.RemoteException;
+    public int getHumedad ()throws java.rmi.RemoteException;
+    public int getLuminosidad ()throws java.rmi.RemoteException;
+    public boolean setPantalla (String msg)throws java.rmi.RemoteException;
 }
