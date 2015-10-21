@@ -6,6 +6,10 @@ import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.rmi.*;
+
+
+//java -Djava.security.policy=registrar.policy Controller 1900 localhost 1099
 
 public class HiloController extends Thread {
 
@@ -15,11 +19,15 @@ public class HiloController extends Thread {
     private String metodos_variables[];
     private HashMap<String, String> parametros = new HashMap<String, String>();
     private String cuerpo = new String();
+    private String servidor_rmi = "";
 
 
-    public HiloController(Socket p_cliente)
+
+    public HiloController(Socket p_cliente, String iprmi, int puertormi)
     {
+
         this.skCliente = p_cliente;
+        servidor_rmi =  "rmi://"+iprmi+":"+puertormi+"/Estacion";
     }
 
     /*
@@ -92,7 +100,12 @@ public class HiloController extends Thread {
             //si hay metodo y variables, comienzo las pruebas...
             if(checkmetod && checkvariable) {
 
+                System.setSecurityManager(new RMISecurityManager());
+                InterfazRemoto objetoRemoto = null;
+
+
                 switch (met) {
+
 
                     case TEMPERATURA: {
 
@@ -101,8 +114,11 @@ public class HiloController extends Thread {
                             else if  (chUrlSensores()==3){ error400(3); }
                             else{
 
-                                System.out.println(parametros.get("parametro0"));
                                 escribeSocket(skCliente,"Obteniendo temperatura");
+                                System.out.println(servidor_rmi + parametros.get("parametro0"));
+
+                                objetoRemoto = (InterfazRemoto) Naming.lookup(servidor_rmi + parametros.get("parametro0"));
+                                System.out.println(objetoRemoto.getTempertura(2));
 
                             }
                         this.skCliente.close();

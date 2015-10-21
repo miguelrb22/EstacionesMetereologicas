@@ -41,7 +41,7 @@ public class Controller {
 				*/
                     Socket skCliente = skServidor.accept(); // Crea objeto
 
-                    Thread t = new HiloController(skCliente);
+                    Thread t = new HiloController(skCliente,c.iprmi,c.puertormi);
                     t.start();
                 }
             }
