@@ -19,7 +19,7 @@ public class Registro {
         {
 
 
-            //En una terminal ejecuto el servidor de registro de nombres, en el directorio donde este el registrar.policy
+            //En una terminal ejecuto el servidor de registro de nombres, en el directorio donde este el registrar.policy y el stub
             //rmiregistry 1099 –J-Djava.security.policy=registrar.policy
 
 
