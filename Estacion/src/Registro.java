@@ -12,6 +12,9 @@ public class Registro {
         String URLRegistro;
         try
         {
+
+            //java -Djava.security.policy=registrar.policy Registro
+
             System.setSecurityManager(new RMISecurityManager());
             ObjetoRemoto objetoRemoto = new ObjetoRemoto();
             int estacionN = objetoRemoto.estacionN;
@@ -22,6 +25,7 @@ public class Registro {
         }
         catch (Exception ex)
         {
+
             System.out.println(ex);
         }
     }
