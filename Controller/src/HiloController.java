@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.rmi.*;
 
 
-//java -Djava.security.policy=registrar.policy Controller 1900 localhost 1099
+//java -Djava.security.policy=registrar.policy Controller 1900 192.168.190.129 1099
+//java -Djava.security.policy=registrar.policy Controller 1900 192.168.190.129 1099
+
 
 public class HiloController extends Thread {
 
@@ -76,7 +78,14 @@ public class HiloController extends Thread {
 
     public void run() {
 
+
         try {
+
+
+            String[] namesR = Naming.list("//" + "192.168.190.129:1099" + "/");
+            for (int i = 0; i < namesR.length; i++)  System.out.println(namesR[i]);
+
+
 
             //leo la cadena
             Cadena = leeSocket(this.skCliente, Cadena);
@@ -115,13 +124,22 @@ public class HiloController extends Thread {
                             else{
 
                                 escribeSocket(skCliente,"Obteniendo temperatura");
-                                System.out.println(servidor_rmi + parametros.get("parametro0"));
 
-                                objetoRemoto = (InterfazRemoto) Naming.lookup(servidor_rmi + parametros.get("parametro0"));
+                                //ruta a la maquina requerida
+                                String route = servidor_rmi + parametros.get("parametro0");
+                                System.out.println(route);
+                                //instanciando el objeto remoto
+                                objetoRemoto = (InterfazRemoto) Naming.lookup(route);
+                                System.out.println(objetoRemoto);
+
                                 System.out.println(objetoRemoto.getTempertura());
+
+                                System.out.println("HOla");
 
                             }
                         this.skCliente.close();
+
+
 
 
                     }
@@ -194,7 +212,7 @@ public class HiloController extends Thread {
 
 
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+            System.out.println(e.getMessage());
         }
     }
 
