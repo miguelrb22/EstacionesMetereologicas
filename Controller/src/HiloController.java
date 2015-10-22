@@ -12,6 +12,10 @@ import java.rmi.*;
 //java -Djava.security.policy=registrar.policy Controller 1900 192.168.190.129 1099
 //java -Djava.security.policy=registrar.policy Controller 1900 192.168.190.129 1099
 
+//Contenido necesario de "etc/hosts"
+       // 127.0.0.1 localhost
+       // 192.168.0.xxx mimaquina
+
 
 public class HiloController extends Thread {
 
@@ -73,7 +77,6 @@ public class HiloController extends Thread {
 
         return;
     }
-
 
 
     public void run() {
