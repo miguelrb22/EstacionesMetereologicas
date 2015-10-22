@@ -27,12 +27,14 @@ public class Registro {
             //java -Djava.security.policy=registrar.policy Registro
 
             System.setSecurityManager(new RMISecurityManager());
-            ObjetoRemoto objetoRemoto = new ObjetoRemoto();
 
 
             //BUscar un numero de estacion vacio y registrarlo
             String[] names = Naming.list("//" + "127.0.0.1:1099" + "/");
-            URLRegistro = "/Estacion"+ getEstacionLibre(names);
+            int estacion = getEstacionLibre(names);
+            URLRegistro = "/Estacion"+ estacion;
+            ObjetoRemoto objetoRemoto = new ObjetoRemoto(estacion);
+
             System.out.println(URLRegistro);
             Naming.rebind (URLRegistro, objetoRemoto);
             System.out.println("Servidor de objeto preparado...");
