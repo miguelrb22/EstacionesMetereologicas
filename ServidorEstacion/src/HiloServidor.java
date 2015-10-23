@@ -63,7 +63,7 @@ public class HiloServidor extends Thread {
         return res;
     }
 
-    public void escribeSocket(Socket p_sk, String p_Datos, boolean cabeceras, int state) {
+    public void escribeSocket(Socket p_sk, String p_Datos, int state) {
 
         try {
 
@@ -72,16 +72,8 @@ public class HiloServidor extends Thread {
             PrintWriter out = new PrintWriter(p_sk.getOutputStream());
             out.flush();
 
-            if (cabeceras == true) {
-
-                cuerpo += "<html>" + "<head><title> Servidor </title>";
-                cuerpo += "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"></head><body>";
-                cuerpo += "<p><span style=\"color:blue\">" + p_Datos + "</span></p>";
-                cuerpo += "</body>" + "</html>";
-
-            } else {
                 cuerpo = p_Datos;
-            }
+
 
 
             //state: 1  = 200 ok
@@ -173,7 +165,7 @@ public class HiloServidor extends Thread {
 
             } else {
 
-                this.escribeSocket(this.skCliente, "Error: 405 Method Not Allowed", false,3);
+                this.escribeSocket(this.skCliente, "Error: 405 Method Not Allowed",3);
             }
 
             this.skCliente.close();
@@ -203,11 +195,11 @@ public class HiloServidor extends Thread {
             while ((cadena = br.readLine()) != null) {
                 result += cadena;
             }
-            escribeSocket(skCliente, result, false,state);
+            escribeSocket(skCliente, result, state);
             skCliente.close();
 
         } catch (FileNotFoundException e) {
-            getFile(3,2);
+            getFile(4,2);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -230,7 +222,7 @@ public class HiloServidor extends Thread {
 
             result = leeSocket(canalControlador, result); //leo la respuesta
 
-            escribeSocket(skCliente, result, true,1); // la escribo en el cliente
+            escribeSocket(skCliente, result, 1); // la escribo en el cliente
 
             canalControlador.close(); // cierro comunicacion con el controlador
 
