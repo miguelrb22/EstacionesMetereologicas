@@ -137,7 +137,6 @@ public class HiloController extends Thread {
 
                                 System.out.println(objetoRemoto.getTempertura());
 
-                                System.out.println("HOla");
 
                             }
                         this.skCliente.close();
