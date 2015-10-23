@@ -237,6 +237,11 @@ public class HiloServidor extends Thread {
         } catch (SocketTimeoutException e){
 
                 getFile(3,5);
+        }
+
+        catch (ConnectException e){
+
+                getFile(3,5);
         }catch (IOException e) {
 
             e.printStackTrace();
