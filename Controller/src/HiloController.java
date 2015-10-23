@@ -3,6 +3,7 @@ import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import javax.annotation.processing.SupportedSourceVersion;
 import java.io.*;
 import java.lang.Exception;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -29,6 +30,8 @@ public class HiloController extends Thread {
     private HashMap<String, String> parametros = new HashMap<String, String>();
     private String cuerpo = new String();
     private String servidor_rmi = "";
+    private InterfazRemoto objetoRemoto = null;
+
 
 
 
@@ -88,8 +91,9 @@ public class HiloController extends Thread {
         try {
 
 
-            String[] namesR = Naming.list("//" + "192.168.190.129:1099" + "/");
-            for (int i = 0; i < namesR.length; i++)  System.out.println(namesR[i]);
+            //String[] namesR = Naming.list("//" + "192.168.190.129:1099" + "/");
+            //for (int i = 0; i < namesR.length; i++)  System.out.println(namesR[i]);
+            System.setSecurityManager(new RMISecurityManager());
 
 
 
@@ -97,7 +101,10 @@ public class HiloController extends Thread {
             Cadena = leeSocket(this.skCliente, Cadena);
 
             //le quito la cabecera de controladorSD
-            Cadena = Cadena.substring(15);
+
+            if(Cadena.length()==14) Cadena= Cadena.substring(14);
+                else Cadena = Cadena.substring(15);
+
 
             //Extraer el metodo de la url
             boolean checkmetod = extMetodo();
@@ -115,8 +122,7 @@ public class HiloController extends Thread {
             //si hay metodo y variables, comienzo las pruebas...
             if(checkmetod && checkvariable) {
 
-                System.setSecurityManager(new RMISecurityManager());
-                InterfazRemoto objetoRemoto = null;
+
 
 
                 switch (met) {
@@ -214,9 +220,19 @@ public class HiloController extends Thread {
                     }
                     break;
 
+                    case INDEX:{
+
+                        String[] namesR = Naming.list("//" + "192.168.190.129:1099" + "/");
+
+                        escribeSocket(skCliente,prinStations(namesR.length));
+                        this.skCliente.close();
+
+                    }
+                    break;
+
                     default: {
 
-                        escribeSocket(skCliente, "Error: Metodo invalido");
+                        escribeSocket(skCliente, "Error: metodo no encontrado");
                         this.skCliente.close();
 
                     }
@@ -237,7 +253,7 @@ public class HiloController extends Thread {
 
         catch (NotBoundException e){
 
-            escribeSocket(skCliente,"NO existe esa estacion");
+            escribeSocket(skCliente,"Error: No existe esa estacion");
             try {
                 skCliente.close();
             } catch (IOException e1) {
@@ -246,7 +262,7 @@ public class HiloController extends Thread {
         }
 
         catch (Exception e) {
-            escribeSocket(skCliente, "La máquina esta apagada, o no se te permite el acceso");
+            escribeSocket(skCliente, "Error: La máquina esta apagada, o no se te permite el acceso");
             try {
                 skCliente.close();
             } catch (IOException e1) {
@@ -267,6 +283,7 @@ public class HiloController extends Thread {
         HUMEDAD,
         LUMINOSIDAD,
         PANTALLA,
+        INDEX,
         NINGUNO
     }
 
@@ -276,6 +293,8 @@ public class HiloController extends Thread {
      */
 
     public boolean extMetodo(){
+
+        if(Cadena.length()==0) return  true;
 
 
         try {
@@ -307,6 +326,8 @@ public class HiloController extends Thread {
      */
 
     public boolean extVariables() {
+
+        if(Cadena.length()==0) return  true;
 
         String variables[];
         String aux[];
@@ -387,6 +408,9 @@ public class HiloController extends Thread {
      */
 
     public Metodos setMetodo(){
+
+        if(Cadena.length()==0) return  Metodos.INDEX;
+
 
         try{
 
@@ -493,9 +517,9 @@ public class HiloController extends Thread {
         html+="</head>";
         html+="<body>";
         if(state==1)
-            html+="<h1 style='color: #FFCDD2; font-size:50px'>Temperatura: "+dato+"</h1>";
+            html+="<h1 style='color: #FFCDD2; font-size:50px'>Temperatura: "+dato+" grados</h1>";
         else if (state==2)
-            html+="<h1 style='color: #FFCDD2; font-size:50px'>Humedad: "+dato+"</h1>";
+            html+="<h1 style='color: #FFCDD2; font-size:50px'>Humedad: "+dato+" %</h1>";
         else if(state==3)
             html+="<h1 style='color: #FFCDD2; font-size:50px'>Luminosidad: "+dato+"</h1>";
         else
@@ -506,4 +530,76 @@ public class HiloController extends Thread {
 
         return html;
     }
+
+
+    public String prinStations(int length){
+
+        String html ="";
+
+        html+="<!DOCTYPE html>";
+        html+="<html lang=\"en\">";
+        html+="<head>";
+        html+="<title>Resultado</title>";
+        html+="<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>";
+        html+="<style type=\"text/css\">";
+        html+="body { background: url('http://img11.deviantart.net/94dc/i/2013/076/4/d/_nube_png__by_lovetheawayyoulie-d5yen4h.png') no-repeat fixed center center; background-size: cover;}";
+
+        html+="</style>";
+        html+="</head>";
+
+        html+="<body>";
+        html+="<center><h1>Estaciones disponibles</h1></center>";
+        html+="<br>";
+
+
+        html+="<div class='container'>";
+        html+="<div class='row'>";
+        for (int i = 0; i< length; i++){
+
+
+            html+="<div class='col col-lg-4 col-md-4'>";
+
+            html+="<div class=\"panel panel-default\"> <div class=\"panel-heading\">Estacion "+i+"</div> <div class=\"panel-body\">";
+
+            if(encendida(i)){
+                html+="<span style='color:green'>Encendida<span>";
+            }else{
+                html+="<span style='color:red'>Apagada<span>";
+
+            }
+            html+="</div> </div>";
+            html+="</div>";
+
+
+        }
+
+        html+="</div>";
+        html+="</div>";
+
+        html+="</body>";
+
+        html+="</html>";
+
+        return html;
+    }
+
+    public boolean encendida(int estacion){
+
+
+        String route = servidor_rmi + estacion;
+
+        try {
+            objetoRemoto = (InterfazRemoto) Naming.lookup(route);
+            objetoRemoto.getHumedad();
+        } catch (NotBoundException e) {
+            return false;
+        } catch (MalformedURLException e) {
+            return false;
+        } catch (RemoteException e) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
