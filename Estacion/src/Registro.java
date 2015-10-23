@@ -24,6 +24,9 @@ public class Registro {
 
 
             //En otro registro lo objetos donde tengamos el objeto registro
+            //out/production/Estacion/
+
+            //export CLASSPATH=$CLASSPATH:/home/miguel/IdeaProjects/EstacionesMetereologicas/Estacion/cliente.jar
             //java -Djava.security.policy=registrar.policy Registro
 
             System.setSecurityManager(new RMISecurityManager());

@@ -1,6 +1,9 @@
 import java.io.*;
 import java.lang.Exception;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -104,6 +107,10 @@ public class HiloServidor extends Thread {
                 out.println("HTTP/1.1 400 Bad Request");
             }
 
+            else if (state ==5){
+                out.println("HTTP/1.1 503 Service unavailable");
+            }
+
             out.println("Connection: close");
             out.println("Content-Lenght: " + cuerpo.getBytes().length);
             out.println("Content-Type: text/html; charset=UTF-8");
@@ -188,6 +195,7 @@ public class HiloServidor extends Thread {
 
             if (action == 1) fr = new FileReader("C:/html/index.html.txt");
             else if (action == 2) fr = new FileReader("C:/html/" + this.urlHTTP + ".txt");
+            else if (action == 3) fr = new FileReader("C:/html/503.html.txt");
             else fr = new FileReader("C:/html/404.html.txt");
 
 
@@ -215,8 +223,9 @@ public class HiloServidor extends Thread {
 
         try {
 
-            Socket canalControlador = new Socket(this.ipcontrolador, this.puertocontrolador); //inicio comunicacion con el controlador
 
+            Socket canalControlador = new Socket(); //inicio comunicacion con el controlador
+            canalControlador.connect(new InetSocketAddress(this.ipcontrolador, this.puertocontrolador),3000);
             escribeSocketAcontrolar(canalControlador, this.urlHTTP);// le escribo la peticion
 
             result = leeSocket(canalControlador, result); //leo la respuesta
@@ -225,8 +234,12 @@ public class HiloServidor extends Thread {
 
             canalControlador.close(); // cierro comunicacion con el controlador
 
-        } catch (IOException e) {
+        } catch (SocketTimeoutException e){
 
+                getFile(3,5);
+        }catch (IOException e) {
+
+            e.printStackTrace();
             System.out.println("No se ha podido conectar con el controlador");
 
         }
