@@ -9,8 +9,11 @@ import java.util.HashMap;
 import java.rmi.*;
 
 
+//export CLASSPATH=$CLASSPATH:/home/miguel/IdeaProjects/EstacionesMetereologicas/Estacion/cliente.jar
+
 //java -Djava.security.policy=registrar.policy Controller 1900 192.168.190.129 1099
 //java -Djava.security.policy=registrar.policy Controller 1900 192.168.190.129 1099
+
 
 //Contenido necesario de "etc/hosts"
        // 127.0.0.1 localhost
@@ -126,20 +129,18 @@ public class HiloController extends Thread {
                             else if  (chUrlSensores()==3){ error400(3); }
                             else{
 
-                                escribeSocket(skCliente,"Obteniendo temperatura");
 
                                 //ruta a la maquina requerida
                                 String route = servidor_rmi + parametros.get("parametro0");
                                 System.out.println(route);
                                 //instanciando el objeto remoto
                                 objetoRemoto = (InterfazRemoto) Naming.lookup(route);
-                                System.out.println(objetoRemoto);
+                                int res = objetoRemoto.getTempertura();
+                                escribeSocket(skCliente,makeHtml(1,res,""));
 
-                                System.out.println(objetoRemoto.getTempertura());
-
-                                System.out.println("HOla");
 
                             }
+
                         this.skCliente.close();
 
                     }
@@ -151,8 +152,15 @@ public class HiloController extends Thread {
                         else if  (chUrlSensores()==1){ error400(2); }
                         else if  (chUrlSensores()==3){ error400(3); }
                         else{
-                            System.out.println(parametros.get("parametro0"));
-                            escribeSocket(skCliente, "Obteniendo Humedad");}
+
+                            //ruta a la maquina requerida
+                            String route = servidor_rmi + parametros.get("parametro0");
+                            //instanciando el objeto remoto
+                            objetoRemoto = (InterfazRemoto) Naming.lookup(route);
+                            int res = objetoRemoto.getHumedad();
+                            escribeSocket(skCliente,makeHtml(2,res,""));
+
+                        }
                         this.skCliente.close();
 
                     }
@@ -164,9 +172,15 @@ public class HiloController extends Thread {
                         else if  (chUrlSensores()==1){ error400(2); }
                         else if  (chUrlSensores()==3){ error400(3); }
                         else{
-                            System.out.println(parametros.get("parametro0"));
+                            //System.out.println(parametros.get("parametro0"));
 
-                            escribeSocket(skCliente, "Obteniendo Luminosidad");}
+                            //ruta a la maquina requerida
+                            String route = servidor_rmi + parametros.get("parametro0");
+                            //instanciando el objeto remoto
+                            objetoRemoto = (InterfazRemoto) Naming.lookup(route);
+                            int res = objetoRemoto.getLuminosidad();
+                            escribeSocket(skCliente,makeHtml(3,res,""));
+                        }
                         this.skCliente.close();
 
                     }
@@ -181,10 +195,15 @@ public class HiloController extends Thread {
                         else if  (chUrlActuador()==4){ error400(4); }
                         else{
 
-                            System.out.println(parametros.get("parametro0"));
-                            System.out.println(parametros.get("parametro1"));
+                            //System.out.println(parametros.get("parametro0"));
+                            //System.out.println(parametros.get("parametro1"));
 
-                            escribeSocket(skCliente,"Estableciendo mensaje pantalla");
+                            //ruta a la maquina requerida
+                            String route = servidor_rmi + parametros.get("parametro0");
+                            //instanciando el objeto remoto
+                            objetoRemoto = (InterfazRemoto) Naming.lookup(route);
+                            objetoRemoto.setPantalla(parametros.get("parametro1"));
+                            escribeSocket(skCliente,makeHtml(0,4,parametros.get("parametro1")));
 
                         }
                         this.skCliente.close();
@@ -211,9 +230,28 @@ public class HiloController extends Thread {
             }
 
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
+
+        catch (NotBoundException e){
+
+            escribeSocket(skCliente,"NO existe esa estacion");
+            try {
+                skCliente.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        catch (Exception e) {
+            escribeSocket(skCliente, "La máquina esta apagada, o no se te permite el acceso");
+            try {
+                skCliente.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+        }
+
     }
 
     /**
@@ -426,5 +464,43 @@ public class HiloController extends Thread {
 
             return 1;
         }
+    }
+
+
+    public String makeHtml(int state, int dato,String msg){
+
+        String html ="";
+        html+="<!DOCTYPE html>";
+        html+="<html lang=\"en\">";
+        html+="<head>";
+        html+="<title>Resultado</title>";
+        html+="<style type=\"text/css\">";
+
+        if(state==1)
+        html+="body { background: url('http://www.itoa-ireland.com/wp-content/uploads/glossy-light.png') no-repeat fixed center center; background-size: cover;}";
+        else if (state==2)
+        html+="body { background: url('http://img11.deviantart.net/94dc/i/2013/076/4/d/_nube_png__by_lovetheawayyoulie-d5yen4h.png') no-repeat fixed center center; background-size: cover;}";
+        else if(state==3)
+            html+="body { background: url('http://www.danbrown.com/wp-content/themes/danbrown/images/db/top.light.png') no-repeat fixed center center; background-size: cover;}";
+
+        else
+            html+="body { background: url('http://img11.deviantart.net/94dc/i/2013/076/4/d/_nube_png__by_lovetheawayyoulie-d5yen4h.png') no-repeat fixed center center; background-size: cover;}";
+
+        html+="</style>";
+        html+="</head>";
+        html+="<body>";
+        if(state==1)
+            html+="<h1 style='color: #FFCDD2; font-size:50px'>Temperatura: "+dato+"</h1>";
+        else if (state==2)
+            html+="<h1 style='color: #FFCDD2; font-size:50px'>Humedad: "+dato+"</h1>";
+        else if(state==3)
+            html+="<h1 style='color: #FFCDD2; font-size:50px'>Luminosidad: "+dato+"</h1>";
+        else
+            html+="<h1 style='color: #FFCDD2; font-size:50px'>Mensaje establecido: "+msg+"</h1>";
+
+        html+="</body>";
+        html+="</html>";
+
+        return html;
     }
 }
