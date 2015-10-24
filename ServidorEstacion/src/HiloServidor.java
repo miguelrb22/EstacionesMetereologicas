@@ -83,6 +83,8 @@ public class HiloServidor extends Thread {
 
             if(p_Datos.substring(0,5).equals("Error") && state != 3){ state =4; }
 
+            if(p_Datos.substring(0,5).equals("Metod")){ state = 3; }
+
             if(state == 1) {
 
                 out.println("HTTP/1.1 200 OK");
