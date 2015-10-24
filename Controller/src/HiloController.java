@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.rmi.*;
 
 
+//cd out/production/Controller/
+
 //export CLASSPATH=$CLASSPATH:/home/miguel/IdeaProjects/EstacionesMetereologicas/Estacion/cliente.jar
 
 //java -Djava.security.policy=registrar.policy Controller 1900 192.168.190.129 1099
@@ -232,7 +234,7 @@ public class HiloController extends Thread {
 
                     default: {
 
-                        escribeSocket(skCliente, "Error: metodo no encontrado");
+                        escribeSocket(skCliente, "Metodo no encontrado<br><h1>405 Method Not Allowed</h1>");
                         this.skCliente.close();
 
                     }
@@ -430,11 +432,11 @@ public class HiloController extends Thread {
     public void error400(int error){
 
 
-        if(error == 1)         escribeSocket(skCliente, "Error: Demasiados argumentos");
-        else if(error == 2)    escribeSocket(skCliente, "Error: Se espera una variable de tipo estacion");
-        else if(error == 3)    escribeSocket(skCliente, "Error: La variable estacion debe ser un entero");
-        else if(error == 4)    escribeSocket(skCliente, "Error: Se espera una variable de tipo msg");
-        else                   escribeSocket(skCliente, "Error: Estructura de la url incorrrecta");
+        if(error == 1)         escribeSocket(skCliente, "Error: Demasiados argumentos<br><h1>400 Bad Request</h1>");
+        else if(error == 2)    escribeSocket(skCliente, "Error: Se espera una variable de tipo estacion<br><h1>400 Bad Request</h1>");
+        else if(error == 3)    escribeSocket(skCliente, "Error: La variable estacion debe ser un entero<br><h1>400 Bad Request</h1>");
+        else if(error == 4)    escribeSocket(skCliente, "Error: Se espera una variable de tipo msg<br><h1>400 Bad Request</h1>");
+        else                   escribeSocket(skCliente, "Error: Estructura de la url incorrrecta<br><h1>400 Bad Request</h1>");
 
 
     }
