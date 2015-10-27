@@ -132,6 +132,7 @@ public class HiloController extends Thread {
 
                     case TEMPERATURA: {
 
+                           //comprobaciones url
                             if(chUrlSensores()==2){ error400(1); }
                             else if  (chUrlSensores()==1){ error400(2); }
                             else if  (chUrlSensores()==3){ error400(3); }
@@ -140,18 +141,14 @@ public class HiloController extends Thread {
 
                                 //ruta a la maquina requerida
                                 String route = servidor_rmi + parametros.get("parametro0");
-                                System.out.println(route);
                                 //instanciando el objeto remoto
                                 objetoRemoto = (InterfazRemoto) Naming.lookup(route);
                                 int res = objetoRemoto.getTempertura();
                                 escribeSocket(skCliente,makeHtml(1,res,""));
 
-
                             }
 
                         this.skCliente.close();
-
-
 
 
                     }
