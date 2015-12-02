@@ -1,6 +1,10 @@
 import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto, Serializable
 {
 
@@ -11,6 +15,7 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
     private FileWriter fichero = null;
     private PrintWriter pw = null;
     private String ruta ="";
+    private String rutaLog ="/home/miguel/LogEstaciones.txt";
 
     protected ObjetoRemoto() throws RemoteException {
 
@@ -40,13 +45,21 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+
+            writeLog("Estacion "+estacion+" creada con exito");
+
             try {
                 // Nuevamente aprovechamos el finally para
                 // asegurarnos que se cierra el fichero.
                 if (null != fichero)
                     fichero.close();
+                writeLog("Fichero cerrado");
+
+
             } catch (Exception e2) {
                 e2.printStackTrace();
+                writeLog("Error al cerrar fichero");
+
             }
         }
 
@@ -79,9 +92,12 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             // En el finally cerramos el fichero, para asegurarnos
             // que se cierra tanto si todo va bien como si salta
             // una excepcion.
+            writeLog("Leida temperatura");
             try{
                 if( null != fr ){
                     fr.close();
+                    writeLog("fichero cerrado");
+
                 }
             }catch (Exception e2){
                 e2.printStackTrace();
@@ -239,5 +255,56 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
 
         return lineas;
 
+    }
+
+    public void writeLog(String msg){
+
+        Date date = new Date();
+        DateFormat hourdateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+
+        try
+        {
+
+            File archivo = new File(rutaLog);
+
+            if(archivo.exists()) {
+                fichero = new FileWriter(rutaLog,true);
+            } else {
+                fichero = new FileWriter(rutaLog);
+            }
+
+            pw = new PrintWriter(fichero);
+
+            pw.println(hourdateFormat.format(date)+" "+msg +" desde " + getClient());
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                // Nuevamente aprovechamos el finally para
+                // asegurarnos que se cierra el fichero.
+                if (null != fichero)
+                    fichero.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+
+    }
+
+    public String getClient(){
+
+        String client = "";
+        try{
+            client = UnicastRemoteObject.getClientHost();
+        }catch(Exception e){
+
+            client = "local";
+        }
+
+        return client;
     }
 }
