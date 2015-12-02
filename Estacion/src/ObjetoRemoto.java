@@ -13,6 +13,7 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
     private FileReader fr = null;
     private BufferedReader br = null;
     private FileWriter fichero = null;
+    private FileWriter fichero2 = null;
     private PrintWriter pw = null;
     private String ruta ="";
     private String rutaLog ="/home/miguel/LogEstaciones.txt";
@@ -46,19 +47,19 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             e.printStackTrace();
         } finally {
 
-            writeLog("Estacion "+estacion+" creada con exito");
 
             try {
+                writeLog("Estacion "+estacion+" creada con exito", false);
+
                 // Nuevamente aprovechamos el finally para
                 // asegurarnos que se cierra el fichero.
-                if (null != fichero)
-                    fichero.close();
-                writeLog("Fichero cerrado");
+                if (null != fichero) {fichero.close();}
+                writeLog("Fichero cerrado",false);
 
 
             } catch (Exception e2) {
                 e2.printStackTrace();
-                writeLog("Error al cerrar fichero");
+                writeLog("Error al cerrar fichero",false);
 
             }
         }
@@ -85,22 +86,27 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             data = linea.split("=");
             temperatura = Integer.parseInt(data[1]);
 
+            writeLog("Leida temperatura",true);
+
         }
         catch(Exception e){
             e.printStackTrace();
+            writeLog("Error al leer temperatura",true);
+
         }finally{
             // En el finally cerramos el fichero, para asegurarnos
-            // que se cierra tanto si todo va bien como si salta
+            // que se cierra tanto si to-do va bien como si salta
             // una excepcion.
-            writeLog("Leida temperatura");
             try{
                 if( null != fr ){
                     fr.close();
-                    writeLog("fichero cerrado");
+                    writeLog("Fichero cerrado correctamente despues de leer temperatura",false);
 
                 }
             }catch (Exception e2){
                 e2.printStackTrace();
+                writeLog("Error al cerrar fichero despues de leer temperatura",false);
+
             }
         }
 
@@ -126,9 +132,14 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             data = linea.split("=");
             humedad = Integer.parseInt(data[1]);
 
+            writeLog("Leida humedad",true);
+
+
         }
         catch(Exception e){
             e.printStackTrace();
+            writeLog("Error al leer humedad",true);
+
         }finally{
             // En el finally cerramos el fichero, para asegurarnos
             // que se cierra tanto si todo va bien como si salta
@@ -136,9 +147,13 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             try{
                 if( null != fr ){
                     fr.close();
+                    writeLog("Fichero cerrado correctamente despues de leer humedad",false);
+
                 }
             }catch (Exception e2){
                 e2.printStackTrace();
+                writeLog("Error al cerrar fichero despues de leer humedad",false);
+
             }
         }
 
@@ -165,8 +180,12 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             data = linea.split("=");
             luminosidad = Integer.parseInt(data[1]);
 
+            writeLog("Leida Luminosidad",true);
+
+
         }
         catch(Exception e){
+            writeLog("Error al leer luminosidad",true);
             e.printStackTrace();
         }finally{
             // En el finally cerramos el fichero, para asegurarnos
@@ -175,9 +194,13 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             try{
                 if( null != fr ){
                     fr.close();
+                    writeLog("Fichero cerrado correctamente despues de leer luminosidad",false);
+
                 }
             }catch (Exception e2){
                 e2.printStackTrace();
+                writeLog("Error al cerrar fichero despues de leer luminosidad",false);
+
             }
         }
 
@@ -200,20 +223,29 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             pw.println(lineas[2]);
             pw.println("Pantalla="+msg);
 
+            writeLog("Establecido nuevo mensaje en pantalla: " + msg,true);
+
+
             return true;
+
 
 
         } catch (Exception e) {
             e.printStackTrace();
+            writeLog("Error al establecer mensaje en pantalla",true);
+
             return false;
         } finally {
-            try {
-                // Nuevamente aprovechamos el finally para
-                // asegurarnos que se cierra el fichero.
-                if (null != fichero)
-                    fichero.close();
-            } catch (Exception e2) {
+            try{
+                if( null != fr ){
+                    fr.close();
+                    writeLog("Fichero cerrado correctamente despues de establecer mensaje en pantalla",false);
+
+                }
+            }catch (Exception e2){
                 e2.printStackTrace();
+                writeLog("Error al cerrar fichero despues de establecer mensaje en pantalla",false);
+
             }
         }
     }
@@ -257,7 +289,7 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
 
     }
 
-    public void writeLog(String msg){
+    public void writeLog(String msg, boolean adclientip){
 
         Date date = new Date();
         DateFormat hourdateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -269,14 +301,18 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             File archivo = new File(rutaLog);
 
             if(archivo.exists()) {
-                fichero = new FileWriter(rutaLog,true);
+                fichero2 = new FileWriter(rutaLog,true);
             } else {
-                fichero = new FileWriter(rutaLog);
+                fichero2 = new FileWriter(rutaLog);
             }
 
-            pw = new PrintWriter(fichero);
+            pw = new PrintWriter(fichero2);
 
+            if (adclientip)
             pw.println(hourdateFormat.format(date)+" "+msg +" desde " + getClient());
+            else
+                pw.println(hourdateFormat.format(date)+" "+msg);
+
 
 
 
@@ -286,8 +322,8 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
             try {
                 // Nuevamente aprovechamos el finally para
                 // asegurarnos que se cierra el fichero.
-                if (null != fichero)
-                    fichero.close();
+                if (null != fichero2)
+                    fichero2.close();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
