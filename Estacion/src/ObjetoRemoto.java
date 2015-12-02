@@ -236,13 +236,14 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
 
             return false;
         } finally {
-            try{
-                if( null != fr ){
-                    fr.close();
-                    writeLog("Fichero cerrado correctamente despues de establecer mensaje en pantalla",false);
+            try {
+                // Nuevamente aprovechamos el finally para
+                // asegurarnos que se cierra el fichero.
+                if (null != fichero)
+                    fichero.close();
+                writeLog("Fichero cerrado correctamente despues de establecer mensaje en pantalla",false);
 
-                }
-            }catch (Exception e2){
+            } catch (Exception e2) {
                 e2.printStackTrace();
                 writeLog("Error al cerrar fichero despues de establecer mensaje en pantalla",false);
 
