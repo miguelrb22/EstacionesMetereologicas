@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 
+//RUN RUN
 public class HiloServidor extends Thread {
 
     private Socket skCliente; //cliente
