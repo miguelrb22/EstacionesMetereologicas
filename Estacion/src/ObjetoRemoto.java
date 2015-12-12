@@ -15,7 +15,7 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
     private FileWriter fichero = null;
     private FileWriter fichero2 = null;
     private PrintWriter pw = null;
-    private String ruta ="";
+    private String ruta ="/home/miguel/Estacion0.txt";
     private String rutaLog ="/home/miguel/LogEstaciones.txt";
 
     protected ObjetoRemoto() throws RemoteException {
