@@ -39,7 +39,7 @@ public class Registro {
             ObjetoRemoto objetoRemoto = new ObjetoRemoto(estacion);
 
             System.out.println(URLRegistro);
-            MyRebind.rebind(URLRegistro, objetoRemoto);
+            Naming.rebind (URLRegistro, objetoRemoto);
             System.out.println("Servidor de objeto preparado...");
 
 
