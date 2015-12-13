@@ -33,19 +33,19 @@ public class Registro {
 
 
             //BUscar un numero de estacion vacio y registrarlo
-            String[] names = Naming.list("//" + "127.0.0.1:1099" + "/");
+            String[] names = Naming.list("//" + "192.168.190.129:1099" + "/");
             int estacion = getEstacionLibre(names);
             URLRegistro = "/Estacion"+ estacion;
             ObjetoRemoto objetoRemoto = new ObjetoRemoto(estacion);
 
             System.out.println(URLRegistro);
-            Naming.rebind (URLRegistro, objetoRemoto);
+            MyRebind.rebind(URLRegistro, objetoRemoto);
             System.out.println("Servidor de objeto preparado...");
 
 
             //Estaciones registradas
             System.out.println("Estaciones registradas:");
-            String[] namesR = Naming.list("//" + "127.0.0.1:1099" + "/");
+            String[] namesR = Naming.list("//" + "192.168.190.129:1099" + "/");
             for (int i = 0; i < namesR.length; i++)  System.out.println(namesR[i]);
 
         }
@@ -66,7 +66,7 @@ public class Registro {
 
         while (encontrado==false) {
 
-            if(Arrays.asList(names).contains("//127.0.0.1:1099/Estacion"+aux)){
+            if(Arrays.asList(names).contains("//192.168.190.129:1099/Estacion"+aux)){
 
                 aux++;
             }else{
