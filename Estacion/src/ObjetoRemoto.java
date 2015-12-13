@@ -22,7 +22,6 @@ public class ObjetoRemoto extends UnicastRemoteObject implements InterfazRemoto,
 
         super();
 
-
     }
 
     protected ObjetoRemoto(int estacion) throws RemoteException {
