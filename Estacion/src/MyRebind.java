@@ -19,4 +19,11 @@ public class MyRebind extends UnicastRemoteObject implements InterfazMyRebind, S
         Naming.rebind(URLRegistro, objetoRemoto);
 
     }
+
+    @Override
+    public String test() throws RemoteException, MalformedURLException {
+
+        return "Enlaza correctamente";
+
+    }
 }

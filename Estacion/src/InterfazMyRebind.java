@@ -8,5 +8,6 @@ import java.rmi.Remote;
 public interface InterfazMyRebind extends Remote {
 
     public void rebind (String URLRegistro, ObjetoRemoto objetoRemoto)throws java.rmi.RemoteException, MalformedURLException;
+    public String test ()throws java.rmi.RemoteException, MalformedURLException;
 
 }
